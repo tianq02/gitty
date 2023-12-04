@@ -22,7 +22,7 @@ contract EditMyPage {
     // 检查调用者是否为版主
     // 通过继承modifier，可以给函数加入权限检查等功能
     modifier isOwner() {
-        // 参考2_Owner.sol，此处如果检查失败，事务会撤销
+        // 参考2_Owner.sol，此处如果检查失败，事务会撤销,什么都不会修改，也不会扣gasfee
         require(msg.sender == owner, "Caller is not owner");
         _;
     }
