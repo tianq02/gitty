@@ -10,8 +10,23 @@ contract EditMyPage {
     address private owner;
 
     // 事件记录，与智能合约交互时可以在日志栏中看到
-    // 发出事件时使用emit changeOwner(参数)
-    event changeOwner(address oldOwner, address newOwner);
+    // 发出事件时使用emit OwnerChange(参数)
+    event OwnerChange(address oldOwner, address newOwner);
+    event PageUpdate(string oldPage, string newPage);
+
+
+    // 检查调用者是否为版主
+    // 通过继承modifier，可以给函数加入权限检查等功能
+    modifier isOwner() {
+        // 参考2_Owner.sol，此处如果检查失败，事务会撤销
+        require(msg.sender == owner, "Caller is not owner");
+        _;
+    }
+
+    function setMyPage(string memory newPage) public isOwner{
+        emit PageUpdate(myPage,newPage);
+        myPage = newPage;
+    }
 
 
 
