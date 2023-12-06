@@ -19,19 +19,28 @@ contract StackStorage {
         curIndex = curIndex + 1;
     }
 
-    function popStack() public returns (string memory) {
-        require(curIndex>0, "empty stack");
+    function popStack() public isEmpty returns (string memory) {
         curIndex = curIndex - 1;
         return strings[curIndex];
     }
 
-    function getDataAtIndex(uint256 index) public view returns (string memory) {
-        require(index < curIndex && index >= 0, "index outbound");
+    function getDataAtIndex(uint256 index) public isOutBound(index) view returns (string memory) {
         return strings[index];
     }
 
     function getCurIndex() public view returns (uint256) {
         return curIndex;
+    }
+
+    modifier isEmpty() {
+        require(curIndex >= 1, "stack empty");
+        _;
+    }
+
+    modifier isOutBound(uint256 index) {
+        require(curIndex >= 1, "stack empty");
+        require(index < curIndex && index >= 0, "index outbound");
+        _;
     }
 
 
