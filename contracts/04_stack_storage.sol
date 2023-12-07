@@ -6,7 +6,7 @@ contract StackStorage {
     // hash(endhash||nonce)|headhash的前面0的个数作为信任度
     // 尝试提升信任度时，以renonce为起始，逐个尝试，直到投入了指定工作量，记录期间获得最大信任度的nonce，更新nonce
     // 完成指定工作量后，在renonce中记录当前尝试的nonce，即使没有得到更高信任度的值也更新
-    // 注：如果使用随机化算法，或许不需要renonce
+    // 注：如果使用随机化算法，或许不需要renonce wwww
     // struct Closure {
     //     string  headhash;
     //     string  endhash;
