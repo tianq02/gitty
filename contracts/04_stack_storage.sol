@@ -140,6 +140,10 @@ contract StackStorage {
         pushStack(_closure);
     }
 
+    function saveByParams(string memory _head, string memory _end, uint256 _nonce) public {
+        saveClosure(Closure(_head,_end,_nonce,true));
+    }
+
     // 2. 获取closure数据
     function getClosureByIndex(uint256 _closureIndex) public view returns(Closure memory) {
         return getDataAtIndex(_closureIndex);
@@ -176,6 +180,11 @@ contract StackStorage {
 
         return matchingBits;
     }
+
+    function getTrustAtIndex(uint256 _index) public view isNotOutBound(_index) returns (uint256) {
+        return getTrust(closures[_index]);
+    }
+
 
     // 4. 更新Closure（加信任度）
     function updateClosure(Closure memory _oldData, Closure memory _newData) public isExist(_oldData) isNotExist(_newData) {
