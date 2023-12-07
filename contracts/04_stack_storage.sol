@@ -16,7 +16,7 @@ contract StackStorage {
 
     // 存储数据的映射
     // 哈希表结构，本程序实现对栈数据结构的模拟
-    mapping(uint256 => string) private closures;
+    mapping(uint256 => Closure) private closures;
 
     // closure头尾的keccak256到下标的映射，用于查找指定记录是否存在，确定下标以renonce
     mapping(bytes32 => uint256) private indexes;
@@ -32,8 +32,8 @@ contract StackStorage {
 
 
     // 压栈
-    function pushStack(string memory _data) public isNotExist(_data){
-        emit StackPush(curIndex, _data);
+    function pushStack(Closure memory _data) public isNotExist(_data){
+        // emit StackPush(curIndex, _data);
 
         closures[curIndex] = _data;
         indexes[keccak256(abi.encode(_data))] = curIndex;
@@ -42,11 +42,11 @@ contract StackStorage {
     }
 
     // 弹栈
-    function popStack() public isNotEmpty returns (string memory) {
+    function popStack() public isNotEmpty returns (Closure memory) {
         curIndex = curIndex - 1;
-        string memory data = closures[curIndex];
+        Closure memory data = closures[curIndex];
 
-        emit StackPop(curIndex, data);
+        // emit StackPop(curIndex, data);
 
         delete closures[curIndex];
         delete indexes[keccak256(abi.encode(data))];
@@ -55,23 +55,23 @@ contract StackStorage {
     }
 
     // 修改对应下标处的数据
-    function updateDataAtIndex(uint256 _index, string memory _data) public isNotOutBound(_index) isNotExist(_data) {
-        string memory oldData = closures[_index];
+    function updateDataAtIndex(uint256 _index, Closure memory _data) public isNotOutBound(_index) isNotExist(_data) {
+        Closure memory oldData = closures[_index];
         delete indexes[keccak256(abi.encode(oldData))];
 
-        emit StackEdit(_index, _data);
+        // emit StackEdit(_index, _data);
 
         closures[_index] = _data;
         indexes[keccak256(abi.encode(_data))] = _index;
     }
 
     // 按下标获取数据(0 .. curIndex-1)
-    function getDataAtIndex(uint256 _index) public isNotOutBound(_index) view returns (string memory) {
+    function getDataAtIndex(uint256 _index) public isNotOutBound(_index) view returns (Closure memory) {
         return closures[_index];
     }
 
     // 按数据查找下标
-    function getIndexOfData(string memory _data) public view returns (uint256) {
+    function getIndexOfData(Closure memory _data) public view returns (uint256) {
         return indexes[keccak256(abi.encode(_data))];
     }
 
@@ -95,13 +95,13 @@ contract StackStorage {
     }
 
     // 数据不存在
-    modifier isNotExist(string memory _data) {
+    modifier isNotExist(Closure memory _data) {
         require(indexes[keccak256(abi.encode(_data))]==0, "data already exist");
         _;
     }
 
     // 数据已存在
-    modifier isExist(string memory _data) {
+    modifier isExist(Closure memory _data) {
         require(indexes[keccak256(abi.encode(_data))]!=0, "data not exist");
         _;
     }
@@ -136,12 +136,12 @@ contract StackStorage {
     // }
 
     // 1. 存储closure数据
-    function saveClosure(string memory _closure) public {
+    function saveClosure(Closure memory _closure) public {
         pushStack(_closure);
     }
 
     // 2. 获取closure数据
-    function getClosureByIndex(uint256 _closureIndex) public view returns(string memory) {
+    function getClosureByIndex(uint256 _closureIndex) public view returns(Closure memory) {
         return getDataAtIndex(_closureIndex);
     }
 
@@ -178,7 +178,7 @@ contract StackStorage {
     }
 
     // 4. 更新Closure（加信任度）
-    function updateClosure(string memory _oldData, string memory _newData) public isExist(_oldData) isNotExist(_newData) {
+    function updateClosure(Closure memory _oldData, Closure memory _newData) public isExist(_oldData) isNotExist(_newData) {
         uint256 index = getIndexOfData(_oldData);
         updateDataAtIndex(index, _newData);
     }
