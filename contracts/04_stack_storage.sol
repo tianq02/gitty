@@ -6,16 +6,16 @@ contract StackStorage {
     // hash(endhash||nonce)|headhash的前面0的个数作为信任度
     // 尝试提升信任度时，以renonce为起始，逐个尝试，直到投入了指定工作量，记录期间获得最大信任度的nonce，更新nonce
     // 完成指定工作量后，在renonce中记录当前尝试的nonce，即使没有得到更高信任度的值也更新
-    // 注：如果使用随机化算法，或许不需要renonce wwww
+    // 注：如果使用随机化算法，或许不需要renonce
     // struct Closure {
     //     string  headhash;
     //     string  endhash;
     //     uint256 nonce;
-    //     uint256 renonce;
+    //     bool isValid;
     // }
 
     // 存储数据的映射
-    // 实际上时哈希表结构，本程序实现对栈数据结构的模拟
+    // 哈希表结构，本程序实现对栈数据结构的模拟
     mapping(uint256 => string) private closures;
 
     // closure头尾的keccak256到下标的映射，用于查找指定记录是否存在，确定下标以renonce
@@ -101,8 +101,8 @@ contract StackStorage {
 
     modifier isExist(string memory _data) {
         uint256 index = indexes[keccak256(abi.encode(_data))];
-        bool isDataEmpty = closures[index].length == 0;
-        require(index !=0 || isDataEmpty, "data not exist");
+        // bool isDataEmpty = closures[index] == '';
+        require(index !=0 , "data not exist");
         _;
     }
 
@@ -131,7 +131,7 @@ contract StackStorage {
 
     // // 4. 更新Closure（加信任度）
     // function updateClosure(Closure memory closure) public {
-
+        
     // }
 
     // 1. 存储closure数据
