@@ -7,12 +7,12 @@ contract StackStorage {
     // 尝试提升信任度时，以renonce为起始，逐个尝试，直到投入了指定工作量，记录期间获得最大信任度的nonce，更新nonce
     // 完成指定工作量后，在renonce中记录当前尝试的nonce，即使没有得到更高信任度的值也更新
     // 注：如果使用随机化算法，或许不需要renonce
-    // struct Closure {
-    //     string  headhash;
-    //     string  endhash;
-    //     uint256 nonce;
-    //     bool isValid;
-    // }
+    struct Closure {
+        string  headhash;
+        string  endhash;
+        uint256 nonce;
+        bool isValid;
+    }
 
     // 存储数据的映射
     // 哈希表结构，本程序实现对栈数据结构的模拟
@@ -145,9 +145,37 @@ contract StackStorage {
     }
 
     // 3. 计算closure的信任度
-    function getTrust(string memory closureData, uint256 nonce) public {
+    function getTrust(Closure memory _data) public pure returns (uint256) {
+        // 计算 sha256(endhash+nonce)
+        Closure memory data = _data;
+        bytes32 calculatedHash = sha256(abi.encodePacked(data.endhash, data.nonce));
 
+        // 将字符串转换为字节数组，以便进行按位比较
+        bytes memory headBytes = bytes(data.headhash);
+        bytes32 headHashBytes;
+
+        // 确保 headBytes 的长度小于等于 32
+        require(headBytes.length <= 32, "Headhash.len>32");
+
+        // 使用零填充 headBytes，创建一个32字节的数组
+        for (uint256 i = 0; i < headBytes.length; i++) {
+            headHashBytes |= bytes32(uint256(uint8(headBytes[i])) << (8 * (headBytes.length - 1 - i)));
+        }
+
+        // 执行按位比较并计数连续匹配的位数
+        uint256 matchingBits = 0;
+        uint256 mask = 1;
+        for (uint256 i = 0; i < 256; i++) {
+            if ((uint256(calculatedHash) & (mask << i)) == (uint256(headHashBytes) & (mask << i))) {
+                matchingBits++;
+            } else {
+                break;
+            }
+        }
+
+        return matchingBits;
     }
+
 
     // 4. 更新Closure（加信任度）
     function updateClosure(string memory oldData, string memory newData) public {
