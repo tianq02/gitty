@@ -26,14 +26,20 @@ contract StackStorage {
     uint256 curIndex;
 
     // 栈更新时发出事件
-    event StackPush(uint256 indexed index, string data);
-    event StackPop(uint256 indexed index, string data);
-    event StackEdit(uint256 indexed index, string data);
+    // event StackPush(uint256 indexed index, string data);
+    // event StackPop(uint256 indexed index, string data);
+    // event StackEdit(uint256 indexed index, string data);
+
+    event ClosurePush(uint256 indexed index, Closure data);
+    event ClosurePop(uint256 indexed index, Closure data);
+    event ClosureEdit(uint256 indexed index, Closure data);
+
 
 
     // 压栈
     function pushStack(Closure memory _data) public isNotExist(_data){
         // emit StackPush(curIndex, _data);
+        emit ClosurePush(curIndex, _data);
 
         closures[curIndex] = _data;
         indexes[keccak256(abi.encode(_data))] = curIndex;
@@ -47,6 +53,7 @@ contract StackStorage {
         Closure memory data = closures[curIndex];
 
         // emit StackPop(curIndex, data);
+        emit ClosurePop(curIndex, data);
 
         delete closures[curIndex];
         delete indexes[keccak256(abi.encode(data))];
@@ -60,6 +67,7 @@ contract StackStorage {
         delete indexes[keccak256(abi.encode(oldData))];
 
         // emit StackEdit(_index, _data);
+        emit ClosureEdit(_index, _data);
 
         closures[_index] = _data;
         indexes[keccak256(abi.encode(_data))] = _index;
@@ -185,11 +193,19 @@ contract StackStorage {
         return getTrust(closures[_index]);
     }
 
+    function getTrustByParams(string memory _head, string memory _end, uint256 _nonce) public pure returns (uint256) {
+        return getTrust(Closure(_head,_end,_nonce,true));
+    }
+
 
     // 4. 更新Closure（加信任度）
     function updateClosure(Closure memory _oldData, Closure memory _newData) public isExist(_oldData) isNotExist(_newData) {
+        require(getTrust(_newData) > getTrust(_oldData));
         uint256 index = getIndexOfData(_oldData);
         updateDataAtIndex(index, _newData);
     }
+
+
+
 
 }
